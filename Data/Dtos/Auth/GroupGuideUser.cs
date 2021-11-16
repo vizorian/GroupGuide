@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Group_Guide.Data.Dtos.Auth
 {
-    public class GroupGuideUser : IdentityUser<Guid>
+    public class GroupGuideUser : IdentityUser
     {
         [PersonalData]
         public string AdditionalInfo { get; set; }

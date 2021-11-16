@@ -10,30 +10,64 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Group_Guide.Data.Dtos.Auth;
+using Group_Guide.Auth;
+using Group_Guide.Auth.Model;
 
 namespace Group_Guide.Controllers
 {
-
-
     [ApiController]
     [AllowAnonymous]
     [Route("api")]
     public class AuthController : ControllerBase
     {
         private readonly UserManager<GroupGuideUser> _userManager;
-        
-        public AuthController(UserManager<GroupGuideUser> userManager)
+        private readonly IMapper _mapper;
+        private readonly ITokenManager _tokenManager;
+
+        public AuthController(UserManager<GroupGuideUser> userManager, IMapper mapper, ITokenManager tokenManager)
         {
             _userManager = userManager;
+            _mapper = mapper;
+            _tokenManager = tokenManager;
         }
-
-        // public AuthController(UserManager<>)
 
         [HttpPost]
         [Route("register")]
         public async Task<IActionResult> Register(RegisterUserDto registerUserDto)
         {
-            var user = await _use
+            var user = await _userManager.FindByNameAsync(registerUserDto.UserName);
+            if (user != null)
+                return BadRequest("User already exists");
+
+            var newUser = new GroupGuideUser
+            {
+                Email = registerUserDto.Email,
+                UserName = registerUserDto.UserName
+            };
+
+            var createUserResult = await _userManager.CreateAsync(newUser, registerUserDto.Password);
+            if (!createUserResult.Succeeded)
+                return BadRequest("Could not create a user.");
+
+            await _userManager.AddToRoleAsync(newUser, GroupGuideUserRoles.User);
+            return CreatedAtAction(nameof(Register), _mapper.Map<UserDto>(newUser));
+        }
+
+        [HttpPost]
+        [Route("login")]
+        public async Task<IActionResult> Login(LoginDto loginDto)
+        {
+            var user = await _userManager.FindByNameAsync(loginDto.UserName);
+            if (user == null)
+                return BadRequest("Username or password is incorrect.");
+
+            var isPasswordValid = await _userManager.CheckPasswordAsync(user, loginDto.Password);
+            if (!isPasswordValid)
+                return BadRequest("Username or password is incorrect.");
+
+            var accessToken = await _tokenManager.CreateAccessTokenAsync(user);
+
+            return Ok(new SuccessfulLoginResponseDto(accessToken));
         }
     }
 }

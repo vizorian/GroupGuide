@@ -1,24 +1,48 @@
+using Group_Guide.Auth;
 using Group_Guide.Data;
+using Group_Guide.Data.Dtos.Auth;
 using Group_Guide.Data.Repositories;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace Group_Guide
 {
     public class Startup
     {
+        private readonly IConfiguration _configuration;
+
+        public Startup(IConfiguration configuration)
+        {
+            _configuration = configuration;
+        }
+
+
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddIdentity<GroupGuideUser, IdentityRole>()
+                .AddEntityFrameworkStores<GroupGuideContext>()
+                .AddDefaultTokenProviders();
+
+            services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+                .AddJwtBearer(options =>
+                {
+                    options.TokenValidationParameters.IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Secret"]));
+                });
+
+
             services.AddDbContext<GroupGuideContext>();
             services.AddAutoMapper(typeof(Startup));
             services.AddControllers();
@@ -27,6 +51,8 @@ namespace Group_Guide
             services.AddTransient<ISessionsRepository, SessionsRepository>();
             services.AddTransient<ITopicsRepository, TopicsRepository>();
             services.AddTransient<IPostsRepository, PostsRepository>();
+            services.AddTransient<ITokenManager, TokenManager>();
+            services.AddTransient<DatabaseSeeder, DatabaseSeeder>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -38,6 +64,8 @@ namespace Group_Guide
             }
 
             app.UseRouting();
+            app.UseAuthentication();
+            app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {

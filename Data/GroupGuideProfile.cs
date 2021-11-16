@@ -5,6 +5,7 @@ using Group_Guide.Data.Dtos.Campaigns;
 using Group_Guide.Data.Dtos.Sessions;
 using Group_Guide.Data.Dtos.Topics;
 using Group_Guide.Data.Dtos.Posts;
+using Group_Guide.Data.Dtos.Auth;
 
 namespace Group_Guide.Data
 {
@@ -31,6 +32,8 @@ namespace Group_Guide.Data
             CreateMap<Post, PostDto>();
             CreateMap<CreatePostDto, Post>();
             CreateMap<UpdatePostDto, Post>();
+
+            CreateMap<GroupGuideUser, UserDto>();
         }
     }
 }

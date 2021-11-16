@@ -1,11 +1,15 @@
-﻿using Group_Guide.Data.Entities;
+﻿using Group_Guide.Data.Dtos.Auth;
+using Group_Guide.Data.Entities;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Protocols;
+using System;
 using System.Configuration;
 
 namespace Group_Guide.Data
 {
-    public class GroupGuideContext : DbContext
+    public class GroupGuideContext : IdentityDbContext<GroupGuideUser>
     {
         public DbSet<Game> Games { get; set; }
         public DbSet<Campaign> Campaigns { get; set; }
