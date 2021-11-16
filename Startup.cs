@@ -1,8 +1,10 @@
 using Group_Guide.Auth;
+using Group_Guide.Auth.Model;
 using Group_Guide.Data;
 using Group_Guide.Data.Dtos.Auth;
 using Group_Guide.Data.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
@@ -39,9 +41,16 @@ namespace Group_Guide
             })
                 .AddJwtBearer(options =>
                 {
+                    options.TokenValidationParameters.ValidAudience = _configuration["JWT:ValidAudience"];
+                    options.TokenValidationParameters.ValidIssuer = _configuration["JWT:ValidIssuer"];
                     options.TokenValidationParameters.IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Secret"]));
                 });
 
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy(PolicyNames.SameUser, policy => policy.Requirements.Add(new SameUserRequirement()));
+            });
+            services.AddSingleton<IAuthorizationHandler, SameUserAutherizationHandler>();
 
             services.AddDbContext<GroupGuideContext>();
             services.AddAutoMapper(typeof(Startup));

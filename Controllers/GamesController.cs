@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
+using Group_Guide.Auth.Model;
 using Group_Guide.Data.Dtos.Games;
 using Group_Guide.Data.Entities;
 using Group_Guide.Data.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -24,11 +26,13 @@ namespace Group_Guide.Controllers
     {
         private readonly IMapper _mapper;
         private readonly IGamesRepository _gamesRepository;
+        private readonly IAuthorizationService _authorizationService;
 
-        public GamesController(IMapper mapper, IGamesRepository gamesRepository)
+        public GamesController(IMapper mapper, IGamesRepository gamesRepository, IAuthorizationService authorizationService)
         {
             _mapper = mapper;
             _gamesRepository = gamesRepository;
+            _authorizationService = authorizationService;
         }
 
         [HttpPost]
@@ -60,10 +64,15 @@ namespace Group_Guide.Controllers
         }
 
         [HttpPut("{gameId}")]
+        [Authorize(Roles = GroupGuideUserRoles.Admin)]
         public async Task<ActionResult<GameDto>> Put(int gameId, UpdateGameDto gameDto)
         {
             var game = await _gamesRepository.Get(gameId);
             if (game == null) return NotFound();
+
+            var authorizationResult = await _authorizationService.AuthorizeAsync(User, game, PolicyNames.SameUser);
+            if (!authorizationResult.Succeeded)
+                return Forbid();
 
             _mapper.Map(gameDto, game);
 
