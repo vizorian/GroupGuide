@@ -1,7 +1,11 @@
 ﻿using AutoMapper;
+using Group_Guide.Auth.Model;
+using Group_Guide.Data.Dtos.Auth;
 using Group_Guide.Data.Dtos.Campaigns;
 using Group_Guide.Data.Entities;
 using Group_Guide.Data.Repositories;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -25,76 +29,145 @@ namespace Group_Guide.Controllers
         private readonly IMapper _mapper;
         private readonly IGamesRepository _gamesRepository;
         private readonly ICampaignsRepository _campaignsRepository;
+        private readonly IAuthorizationService _authorizationService;
+        private readonly UserManager<GroupGuideUser> _userManager;
 
-        public CampaignsController(IMapper mapper, IGamesRepository gamesRepository, ICampaignsRepository campaignsRepository)
+        public CampaignsController(IMapper mapper,
+                                   IGamesRepository gamesRepository,
+                                   ICampaignsRepository campaignsRepository,
+                                   IAuthorizationService authorizationService,
+                                   UserManager<GroupGuideUser> userManager)
         {
             _mapper = mapper;
             _gamesRepository = gamesRepository;
             _campaignsRepository = campaignsRepository;
+            _authorizationService = authorizationService;
+            _userManager = userManager;
         }
 
         [HttpPost]
+        [Authorize(Roles = GroupGuideUserRoles.User)]
         public async Task<ActionResult<CampaignDto>> Post(int gameId, CreateCampaignDto campaignDto)
         {
-            var game = await _gamesRepository.Get(gameId);
+            var game = await _gamesRepository.GetAsync(gameId);
             if (game == null) return NotFound();
-            
+
             var campaign = _mapper.Map<Campaign>(campaignDto);
             campaign.GameId = gameId;
+            campaign.User = await _userManager.GetUserAsync(User);
+            campaign.UserId = await _userManager.GetUserIdAsync(campaign.User);
 
-            await _campaignsRepository.InsertAsync(campaign);
+            await _campaignsRepository.CreateAsync(campaign);
 
             //Created campaign 201
             return Created($"/api/games/{gameId}/campaigns/{campaign.Id}", _mapper.Map<CampaignDto>(campaign));
         }
 
         [HttpGet]
-        public async Task<IEnumerable<CampaignDto>> GetAll(int gameId)
+        public async Task<ActionResult<IEnumerable<CampaignDto>>> GetAll(int gameId)
         {
-            var game = await _campaignsRepository.GetAllAsync(gameId);
+            var campaigns = await _campaignsRepository.GetAllAsync(gameId);
 
             // Got all campaigns 200
-            return game.Select(o => _mapper.Map<CampaignDto>(o));
+            return Ok(campaigns.Select(o => _mapper.Map<CampaignDto>(o)));
         }
 
         [HttpGet("{campaignId}")]
         public async Task<ActionResult<CampaignDto>> Get(int gameId, int campaignId)
         {
-            var game = await _campaignsRepository.GetAsync(gameId, campaignId);
-            if (game == null) return NotFound();
+            var campaign = await _campaignsRepository.GetAsync(gameId, campaignId);
+            if (campaign == null) return NotFound();
 
             // Got campaign by id 200
-            return Ok(_mapper.Map<CampaignDto>(game));
+            return Ok(_mapper.Map<CampaignDto>(campaign));
         }
 
         [HttpPut("{campaignId}")]
+        [Authorize(Roles = GroupGuideUserRoles.User)]
         public async Task<ActionResult<CampaignDto>> Put(int gameId, int campaignId, UpdateCampaignDto campaignDto)
         {
-            var game = await _gamesRepository.Get(gameId);
+            var game = await _gamesRepository.GetAsync(gameId);
             if (game == null) return NotFound();
 
-            var oldCampaign = await _campaignsRepository.GetAsync(gameId, campaignId);
-            if (oldCampaign == null)
+            var campaign = await _campaignsRepository.GetAsync(gameId, campaignId);
+            if (campaign == null)
                 return NotFound();
 
-            _mapper.Map(campaignDto, oldCampaign);
+            var authorizationResult = await _authorizationService.AuthorizeAsync(User, campaign, PolicyNames.SameUser);
+            if(!authorizationResult.Succeeded)
+                return Forbid();
 
-            await _campaignsRepository.UpdateAsync(oldCampaign);
+            _mapper.Map(campaignDto, campaign);
+
+            await _campaignsRepository.UpdateAsync(campaign);
 
             // Updated campaign 200
-            return Ok(_mapper.Map<CampaignDto>(oldCampaign));
+            return Ok(_mapper.Map<CampaignDto>(campaign));
         }
 
         [HttpDelete("{campaignId}")]
+        [Authorize(Roles = GroupGuideUserRoles.User)]
         public async Task<ActionResult<CampaignDto>> Delete(int gameId, int campaignId)
         {
             var campaign = await _campaignsRepository.GetAsync(gameId, campaignId);
             if (campaign == null) return NotFound();
 
+            var authorizationResult = await _authorizationService.AuthorizeAsync(User, campaign, PolicyNames.SameUser);
+            if (!authorizationResult.Succeeded)
+                return Forbid();
+
             await _campaignsRepository.DeleteAsync(campaign);
 
             // Deleted campaign 204
             return NoContent();
+        }
+
+        [HttpPut("{campaignId}")]
+        [Authorize(Roles = GroupGuideUserRoles.User)]
+        public async Task<ActionResult<CampaignDto>> AddPlayer(int gameId, int campaignId, UpdateCampaignDto campaignDto, string playerId)
+        {
+            var game = await _gamesRepository.GetAsync(gameId);
+            if (game == null) return NotFound();
+
+            var campaign = await _campaignsRepository.GetAsync(gameId, campaignId);
+            if (campaign == null)
+                return NotFound();
+
+            var authorizationResult = await _authorizationService.AuthorizeAsync(User, campaign, PolicyNames.SameUser);
+            if (!authorizationResult.Succeeded)
+                return Forbid();
+
+            _mapper.Map(campaignDto, campaign);
+            campaign.PlayerIds.Add(playerId);
+
+            await _campaignsRepository.UpdateAsync(campaign);
+
+            // Updated campaign 200
+            return Ok(_mapper.Map<CampaignDto>(campaign));
+        }
+
+        [HttpPut("{campaignId}")]
+        [Authorize(Roles = GroupGuideUserRoles.User)]
+        public async Task<ActionResult<CampaignDto>> RemovePlayer(int gameId, int campaignId, UpdateCampaignDto campaignDto, string playerId)
+        {
+            var game = await _gamesRepository.GetAsync(gameId);
+            if (game == null) return NotFound();
+
+            var campaign = await _campaignsRepository.GetAsync(gameId, campaignId);
+            if (campaign == null)
+                return NotFound();
+
+            var authorizationResult = await _authorizationService.AuthorizeAsync(User, campaign, PolicyNames.SameUser);
+            if (!authorizationResult.Succeeded)
+                return Forbid();
+
+            _mapper.Map(campaignDto, campaign);
+            campaign.PlayerIds.Remove(playerId);
+
+            await _campaignsRepository.UpdateAsync(campaign);
+
+            // Updated campaign 200
+            return Ok(_mapper.Map<CampaignDto>(campaign));
         }
     }
 }

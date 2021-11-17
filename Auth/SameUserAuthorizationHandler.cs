@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Group_Guide.Auth
 {
-    public class SameUserAutherizationHandler : AuthorizationHandler<SameUserRequirement, IUserOwnedResource>
+    public class SammeUserAuthorizationHandler : AuthorizationHandler<SameUserRequirement, IUserOwnedResource>
     {
         protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, SameUserRequirement requirement, IUserOwnedResource resource)
         {

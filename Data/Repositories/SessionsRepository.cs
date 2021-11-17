@@ -9,7 +9,7 @@ namespace Group_Guide.Data.Repositories
 {
     public interface ISessionsRepository
     {
-        Task InsertAsync(Session session);
+        Task CreateAsync(Session session);
         Task<IEnumerable<Session>> GetAllAsync(int campaignId);
         Task<Session> GetAsync(int campaignId, int sessionId);
         Task UpdateAsync(Session session);
@@ -25,7 +25,7 @@ namespace Group_Guide.Data.Repositories
             _groupGuideContext = groupGuideContext;
         }
 
-        public async Task InsertAsync(Session session)
+        public async Task CreateAsync(Session session)
         {
             _groupGuideContext.Sessions.Add(session);
             await _groupGuideContext.SaveChangesAsync();

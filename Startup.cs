@@ -50,7 +50,7 @@ namespace Group_Guide
             {
                 options.AddPolicy(PolicyNames.SameUser, policy => policy.Requirements.Add(new SameUserRequirement()));
             });
-            services.AddSingleton<IAuthorizationHandler, SameUserAutherizationHandler>();
+            services.AddSingleton<IAuthorizationHandler, BelongsHereAuthorizationHandler>();
 
             services.AddDbContext<GroupGuideContext>();
             services.AddAutoMapper(typeof(Startup));

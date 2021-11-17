@@ -9,10 +9,10 @@ namespace Group_Guide.Data.Repositories
 {
     public interface IGamesRepository
     {
-        Task<Game> Create(Game game);
-        Task<IEnumerable<Game>> GetAll();
-        Task<Game> Get(int id);
-        Task<Game> Put(Game game);
+        Task<Game> CreateAsync(Game game);
+        Task<IEnumerable<Game>> GetAllAsync();
+        Task<Game> GetAsync(int id);
+        Task<Game> UpdateAsync(Game game);
         Task Delete(Game game);
     }
 
@@ -25,7 +25,7 @@ namespace Group_Guide.Data.Repositories
             _groupGuideContext = groupGuideContext;
         }
 
-        public async Task<Game> Create(Game game)
+        public async Task<Game> CreateAsync(Game game)
         {
             _groupGuideContext.Games.Add(game);
             await _groupGuideContext.SaveChangesAsync();
@@ -33,17 +33,17 @@ namespace Group_Guide.Data.Repositories
             return game;
         }
 
-        public async Task<IEnumerable<Game>> GetAll()
+        public async Task<IEnumerable<Game>> GetAllAsync()
         {
             return await _groupGuideContext.Games.ToListAsync();
         }
 
-        public async Task<Game> Get(int id)
+        public async Task<Game> GetAsync(int id)
         {
             return await _groupGuideContext.Games.FirstOrDefaultAsync(o => o.Id == id);
         }
 
-        public async Task<Game> Put(Game game)
+        public async Task<Game> UpdateAsync(Game game)
         {
             _groupGuideContext.Games.Update(game);
             await _groupGuideContext.SaveChangesAsync();

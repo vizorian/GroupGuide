@@ -9,7 +9,7 @@ namespace Group_Guide.Data.Repositories
 {
     public interface ITopicsRepository
     {
-        Task InsertAsync(Topic topic);
+        Task CreateAsync(Topic topic);
         Task<IEnumerable<Topic>> GetAllAsync(int campaignId);
         Task<Topic> GetAsync(int campaignId, int topicId);
         Task UpdateAsync(Topic topic);
@@ -25,7 +25,7 @@ namespace Group_Guide.Data.Repositories
             _groupGuideContext = groupGuideContext;
         }
 
-        public async Task InsertAsync(Topic topic)
+        public async Task CreateAsync(Topic topic)
         {
             _groupGuideContext.Topics.Add(topic);
             await _groupGuideContext.SaveChangesAsync();

@@ -9,7 +9,7 @@ namespace Group_Guide.Data.Repositories
 {
     public interface IPostsRepository
     {
-        Task InsertAsync(Post post);
+        Task CreateAsync(Post post);
         Task<IEnumerable<Post>> GetAllAsync(int topicId);
         Task<Post> GetAsync(int topicId, int postId);
         Task UpdateAsync(Post post);
@@ -25,7 +25,7 @@ namespace Group_Guide.Data.Repositories
             _groupGuideContext = groupGuideContext;
         }
 
-        public async Task InsertAsync(Post post)
+        public async Task CreateAsync(Post post)
         {
             _groupGuideContext.Posts.Add(post);
             await _groupGuideContext.SaveChangesAsync();

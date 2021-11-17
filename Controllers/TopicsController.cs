@@ -38,7 +38,7 @@ namespace Group_Guide.Controllers
         [HttpPost]
         public async Task<ActionResult<TopicDto>> Post(int gameId, int campaignId, CreateTopicDto topicDto)
         {
-            var game = await _gamesRepository.Get(gameId);
+            var game = await _gamesRepository.GetAsync(gameId);
             if (game == null) return NotFound();
 
             var campaign = await _campaignsRepository.GetAsync(gameId, campaignId);
@@ -47,29 +47,29 @@ namespace Group_Guide.Controllers
             var topic = _mapper.Map<Topic>(topicDto);
             topic.CampaignId = campaignId;
 
-            await _topicsRepository.InsertAsync(topic);
+            await _topicsRepository.CreateAsync(topic);
 
             //Created topic 201
             return Created($"/api/games/{gameId}/campaigns/{campaignId}/topics/{topic.Id}", _mapper.Map<TopicDto>(topic));
         }
 
         [HttpGet]
-        public async Task<IEnumerable<TopicDto>> GetAll(int campaignId)
+        public async Task<ActionResult<IEnumerable<TopicDto>>> GetAll(int campaignId)
         {
-            var campaign = await _topicsRepository.GetAllAsync(campaignId);
+            var topics = await _topicsRepository.GetAllAsync(campaignId);
 
             // Got all topics 200
-            return campaign.Select(o => _mapper.Map<TopicDto>(o));
+            return Ok(topics.Select(o => _mapper.Map<TopicDto>(o)));
         }
 
         [HttpGet("{topicId}")]
         public async Task<ActionResult<TopicDto>> Get(int campaignId, int topicId)
         {
-            var campaign = await _topicsRepository.GetAsync(campaignId, topicId);
-            if (campaign == null) return NotFound();
+            var topic = await _topicsRepository.GetAsync(campaignId, topicId);
+            if (topic == null) return NotFound();
 
             // Got topic by id 200
-            return Ok(_mapper.Map<TopicDto>(campaign));
+            return Ok(_mapper.Map<TopicDto>(topic));
         }
 
         [HttpPut("{topicId}")]
@@ -78,16 +78,16 @@ namespace Group_Guide.Controllers
             var campaign = await _campaignsRepository.GetAsync(gameId, campaignId);
             if (campaign == null) return NotFound();
 
-            var oldTopic = await _topicsRepository.GetAsync(campaignId, topicId);
-            if (oldTopic == null)
+            var topic = await _topicsRepository.GetAsync(campaignId, topicId);
+            if (topic == null)
                 return NotFound();
 
-            _mapper.Map(topicDto, oldTopic);
+            _mapper.Map(topicDto, topic);
 
-            await _topicsRepository.UpdateAsync(oldTopic);
+            await _topicsRepository.UpdateAsync(topic);
 
             // Updated topic 200
-            return Ok(_mapper.Map<TopicDto>(oldTopic));
+            return Ok(_mapper.Map<TopicDto>(topic));
         }
 
         [HttpDelete("{topicId}")]

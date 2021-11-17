@@ -40,7 +40,7 @@ namespace Group_Guide.Controllers
         [HttpPost]
         public async Task<ActionResult<PostDto>> Post(int gameId, int campaignId, int topicId, CreatePostDto postDto)
         {
-            var game = await _gamesRepository.Get(gameId);
+            var game = await _gamesRepository.GetAsync(gameId);
             if (game == null) return NotFound();
 
             // replace with GetAsyncAll?
@@ -53,30 +53,30 @@ namespace Group_Guide.Controllers
             var post = _mapper.Map<Post>(postDto);
             post.TopicId = topicId;
 
-            await _postsRepository.InsertAsync(post);
+            await _postsRepository.CreateAsync(post);
 
             //Created post 201
             return Created($"/api/games/{gameId}/campaigns/{campaignId}/topics/{topicId}/posts/{post.Id}", _mapper.Map<PostDto>(post));
         }
 
         [HttpGet]
-        public async Task<IEnumerable<PostDto>> GetAll(int topicId)
+        public async Task<ActionResult<IEnumerable<PostDto>>> GetAll(int topicId)
         {
             // replace with GetAsync?
-            var topic = await _postsRepository.GetAllAsync(topicId);
+            var posts = await _postsRepository.GetAllAsync(topicId);
 
             // Got all topics 200
-            return topic.Select(o => _mapper.Map<PostDto>(o));
+            return Ok(posts.Select(o => _mapper.Map<PostDto>(o)));
         }
 
         [HttpGet("{postId}")]
         public async Task<ActionResult<PostDto>> Get(int topicId, int postId)
         {
-            var topic = await _postsRepository.GetAsync(topicId, postId);
-            if (topic == null) return NotFound();
+            var post = await _postsRepository.GetAsync(topicId, postId);
+            if (post == null) return NotFound();
 
             // Got post by id 200
-            return Ok(_mapper.Map<PostDto>(topic));
+            return Ok(_mapper.Map<PostDto>(post));
         }
 
         [HttpPut("{postId}")]
@@ -85,16 +85,16 @@ namespace Group_Guide.Controllers
             var topic = await _topicsRepository.GetAsync(campaignId, topicId);
             if (topic == null) return NotFound();
 
-            var oldPost = await _postsRepository.GetAsync(topicId, postId);
-            if (oldPost == null)
+            var post = await _postsRepository.GetAsync(topicId, postId);
+            if (post == null)
                 return NotFound();
 
-            _mapper.Map(postDto, oldPost);
+            _mapper.Map(postDto, post);
 
-            await _postsRepository.UpdateAsync(oldPost);
+            await _postsRepository.UpdateAsync(post);
 
             // Updated post 200
-            return Ok(_mapper.Map<PostDto>(oldPost));
+            return Ok(_mapper.Map<PostDto>(post));
         }
 
         [HttpDelete("{postId}")]
