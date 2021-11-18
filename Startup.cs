@@ -49,8 +49,8 @@ namespace Group_Guide
             services.AddAuthorization(options =>
             {
                 options.AddPolicy(PolicyNames.SameUser, policy => policy.Requirements.Add(new SameUserRequirement()));
+                options.AddPolicy(PolicyNames.UserBelongs, policy => policy.Requirements.Add(new UserBelongsRequirement()));
             });
-            services.AddSingleton<IAuthorizationHandler, BelongsHereAuthorizationHandler>();
 
             services.AddDbContext<GroupGuideContext>();
             services.AddAutoMapper(typeof(Startup));
@@ -62,6 +62,8 @@ namespace Group_Guide
             services.AddTransient<IPostsRepository, PostsRepository>();
             services.AddTransient<ITokenManager, TokenManager>();
             services.AddTransient<DatabaseSeeder, DatabaseSeeder>();
+
+            services.AddTransient<IAuthorizationHandler, MainAuthorizationHandler>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

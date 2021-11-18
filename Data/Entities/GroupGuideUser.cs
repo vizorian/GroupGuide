@@ -9,6 +9,7 @@ namespace Group_Guide.Data.Dtos.Auth
 {
     public class GroupGuideUser : IdentityUser
     {
-
+        public ICollection<Campaign> Campaigns { get; set; }
+        public ICollection<Post> Posts { get; set; }
     }
 }

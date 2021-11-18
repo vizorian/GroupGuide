@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Identity;
 using Group_Guide.Data.Dtos.Auth;
 using Group_Guide.Auth;
 using Group_Guide.Auth.Model;
+using static Group_Guide.Auth.TokenManager;
 
 namespace Group_Guide.Controllers
 {
@@ -67,7 +68,26 @@ namespace Group_Guide.Controllers
 
             var accessToken = await _tokenManager.CreateAccessTokenAsync(user);
 
-            return Ok(new SuccessfulLoginResponseDto(accessToken));
+            return Ok(accessToken);
+        }
+
+        [HttpPost]
+        [Route("refresh")]
+        public async Task<IActionResult> RefreshToken([FromBody] TokenRequest tokenRequest)
+        {
+            if (ModelState.IsValid)
+            {
+                var res = await _tokenManager.VerifyToken(tokenRequest);
+
+                if (res == null)
+                {
+                    return BadRequest();
+                }
+
+                return Ok(res);
+            }
+
+            return BadRequest();
         }
     }
 }

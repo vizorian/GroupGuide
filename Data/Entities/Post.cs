@@ -14,6 +14,5 @@ namespace Group_Guide.Data.Entities
         public Topic Topic { get; set; }
         
         public string UserId { get; set; }
-        public GroupGuideUser User { get; set; }
     }
 }

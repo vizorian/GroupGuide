@@ -64,8 +64,6 @@ namespace Group_Guide.Controllers
 
             var session = _mapper.Map<Session>(sessionDto);
             session.CampaignId = campaignId;
-            session.User = await _userManager.GetUserAsync(User);
-            session.UserId = await _userManager.GetUserIdAsync(session.User);
 
             await _sessionsRepository.CreateAsync(session);
 
@@ -74,12 +72,17 @@ namespace Group_Guide.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<SessionDto>>> GetAll(int campaignId)
+        public async Task<ActionResult<IEnumerable<SessionDto>>> GetAll(int gameId, int campaignId)
         {
-            // replace with GetAsync?
             var sessions = await _sessionsRepository.GetAllAsync(campaignId);
 
-            var authorizationResult = await _authorizationService.AuthorizeAsync(User, sessions.First().Campaign, PolicyNames.UserBelongs);
+            var campaign = await _campaignsRepository.GetAsync(gameId, campaignId);
+            if (campaign == null)
+                return NotFound();
+
+            campaign.Players = await _campaignsRepository.GetPlayersAsync(gameId, campaignId);
+
+            var authorizationResult = await _authorizationService.AuthorizeAsync(User, campaign, PolicyNames.UserBelongs);
             if (!authorizationResult.Succeeded)
                 return Forbid();
 
@@ -88,12 +91,17 @@ namespace Group_Guide.Controllers
         }
 
         [HttpGet("{sessionId}")]
-        public async Task<ActionResult<SessionDto>> Get(int campaignId, int sessionId)
+        public async Task<ActionResult<SessionDto>> Get(int gameId, int campaignId, int sessionId)
         {
+            var campaign = await _campaignsRepository.GetAsync(gameId, campaignId);
+            if (campaign == null) return NotFound();
+
             var session = await _sessionsRepository.GetAsync(campaignId, sessionId);
             if (session == null) return NotFound();
 
-            var authorizationResult = await _authorizationService.AuthorizeAsync(User, session.Campaign, PolicyNames.UserBelongs);
+            campaign.Players = await _campaignsRepository.GetPlayersAsync(gameId, campaignId);
+
+            var authorizationResult = await _authorizationService.AuthorizeAsync(User, campaign, PolicyNames.UserBelongs);
             if (!authorizationResult.Succeeded)
                 return Forbid();
 
@@ -111,9 +119,8 @@ namespace Group_Guide.Controllers
             if (session == null)
                 return NotFound();
 
-            // fix this
-            var authorizationResult = await _authorizationService.AuthorizeAsync(User, session, PolicyNames.SameUser);
-            if (!authorizationResult.Succeeded)
+            var authorizationResult = await _authorizationService.AuthorizeAsync(User, campaign, PolicyNames.SameUser);
+            if(!authorizationResult.Succeeded)
                 return Forbid();
 
             _mapper.Map(sessionDto, session);
@@ -125,12 +132,15 @@ namespace Group_Guide.Controllers
         }
 
         [HttpDelete("{sessionId}")]
-        public async Task<ActionResult<SessionDto>> Delete(int campaignId, int sessionId)
+        public async Task<ActionResult<SessionDto>> Delete(int gameId, int campaignId, int sessionId)
         {
+            var campaign = await _campaignsRepository.GetAsync(gameId, campaignId);
+            if (campaign == null) return NotFound();
+
             var session = await _sessionsRepository.GetAsync(campaignId, sessionId);
             if (session == null) return NotFound();
 
-            var authorizationResult = await _authorizationService.AuthorizeAsync(User, session, PolicyNames.SameUser);
+            var authorizationResult = await _authorizationService.AuthorizeAsync(User, campaign, PolicyNames.SameUser);
             if (!authorizationResult.Succeeded)
                 return Forbid();
 

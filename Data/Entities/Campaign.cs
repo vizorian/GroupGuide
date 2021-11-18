@@ -3,6 +3,7 @@ using Group_Guide.Data.Dtos.Auth;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Group_Guide.Data.Entities
 {
@@ -17,8 +18,7 @@ namespace Group_Guide.Data.Entities
 
         [Required]
         public string UserId { get; set; }
-        public GroupGuideUser User { get; set; }
 
-        public ICollection<string> PlayerIds { get; set; }
+        public ICollection<GroupGuideUser> Players { get; set; }
     }
 }

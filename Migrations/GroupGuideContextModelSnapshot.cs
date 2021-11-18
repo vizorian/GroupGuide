@@ -19,15 +19,62 @@ namespace Group_Guide.Migrations
                 .HasAnnotation("ProductVersion", "5.0.12")
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+            modelBuilder.Entity("CampaignGroupGuideUser", b =>
+                {
+                    b.Property<int>("CampaignsId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("PlayersId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("CampaignsId", "PlayersId");
+
+                    b.HasIndex("PlayersId");
+
+                    b.ToTable("CampaignGroupGuideUser");
+                });
+
+            modelBuilder.Entity("Group_Guide.Auth.RefreshToken", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<DateTime>("AddedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("ExpiryDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsRevoked")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsUsed")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("JwtId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Token")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("RefreshTokens");
+                });
+
             modelBuilder.Entity("Group_Guide.Data.Dtos.Auth.GroupGuideUser", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<int>("AccessFailedCount")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("CampaignId")
                         .HasColumnType("int");
 
                     b.Property<string>("ConcurrencyStamp")
@@ -76,8 +123,6 @@ namespace Group_Guide.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CampaignId");
-
                     b.HasIndex("NormalizedEmail")
                         .HasDatabaseName("EmailIndex");
 
@@ -110,13 +155,11 @@ namespace Group_Guide.Migrations
 
                     b.Property<string>("UserId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("GameId");
-
-                    b.HasIndex("UserId");
 
                     b.ToTable("Campaigns");
                 });
@@ -155,17 +198,20 @@ namespace Group_Guide.Migrations
                     b.Property<DateTime>("CreationTimeUtc")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("GroupGuideUserId")
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<int>("TopicId")
                         .HasColumnType("int");
 
                     b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("TopicId");
+                    b.HasIndex("GroupGuideUserId");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("TopicId");
 
                     b.ToTable("Posts");
                 });
@@ -189,14 +235,9 @@ namespace Group_Guide.Migrations
                     b.Property<DateTime>("StartingTime")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
-
                     b.HasKey("Id");
 
                     b.HasIndex("CampaignId");
-
-                    b.HasIndex("UserId");
 
                     b.ToTable("Sessions");
                 });
@@ -217,14 +258,9 @@ namespace Group_Guide.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
-
                     b.HasKey("Id");
 
                     b.HasIndex("CampaignId");
-
-                    b.HasIndex("UserId");
 
                     b.ToTable("Topics");
                 });
@@ -360,11 +396,28 @@ namespace Group_Guide.Migrations
                     b.ToTable("AspNetUserTokens");
                 });
 
-            modelBuilder.Entity("Group_Guide.Data.Dtos.Auth.GroupGuideUser", b =>
+            modelBuilder.Entity("CampaignGroupGuideUser", b =>
                 {
                     b.HasOne("Group_Guide.Data.Entities.Campaign", null)
-                        .WithMany("Players")
-                        .HasForeignKey("CampaignId");
+                        .WithMany()
+                        .HasForeignKey("CampaignsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Group_Guide.Data.Dtos.Auth.GroupGuideUser", null)
+                        .WithMany()
+                        .HasForeignKey("PlayersId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Group_Guide.Auth.RefreshToken", b =>
+                {
+                    b.HasOne("Group_Guide.Data.Dtos.Auth.GroupGuideUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Group_Guide.Data.Entities.Campaign", b =>
@@ -375,32 +428,22 @@ namespace Group_Guide.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Group_Guide.Data.Dtos.Auth.GroupGuideUser", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("Game");
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Group_Guide.Data.Entities.Post", b =>
                 {
+                    b.HasOne("Group_Guide.Data.Dtos.Auth.GroupGuideUser", null)
+                        .WithMany("Posts")
+                        .HasForeignKey("GroupGuideUserId");
+
                     b.HasOne("Group_Guide.Data.Entities.Topic", "Topic")
                         .WithMany()
                         .HasForeignKey("TopicId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Group_Guide.Data.Dtos.Auth.GroupGuideUser", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId");
-
                     b.Navigation("Topic");
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Group_Guide.Data.Entities.Session", b =>
@@ -411,13 +454,7 @@ namespace Group_Guide.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Group_Guide.Data.Dtos.Auth.GroupGuideUser", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId");
-
                     b.Navigation("Campaign");
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Group_Guide.Data.Entities.Topic", b =>
@@ -428,13 +465,7 @@ namespace Group_Guide.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Group_Guide.Data.Dtos.Auth.GroupGuideUser", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId");
-
                     b.Navigation("Campaign");
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -488,9 +519,9 @@ namespace Group_Guide.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Group_Guide.Data.Entities.Campaign", b =>
+            modelBuilder.Entity("Group_Guide.Data.Dtos.Auth.GroupGuideUser", b =>
                 {
-                    b.Navigation("Players");
+                    b.Navigation("Posts");
                 });
 #pragma warning restore 612, 618
         }

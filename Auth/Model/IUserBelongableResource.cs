@@ -5,6 +5,6 @@ namespace Group_Guide.Auth.Model
 {
     public interface IUserBelongableResource
     {
-        ICollection<string> PlayerIds { get; set; }
+        ICollection<GroupGuideUser> Players { get; set; }
     }
 }

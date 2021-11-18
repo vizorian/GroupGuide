@@ -6,11 +6,11 @@ namespace Group_Guide.Data.Entities
 {
     public class CampaignUser
     {
-        [Key, Column(Order = 1)]
+        //[Key, Column(Order = 1)]
         public int CampaignId { get; set; }
-        [Key, Column(Order = 2)]
-        public int UserId { get; set; }
         public Campaign Campaign { get; set; }
+        //[Key, Column(Order = 2)]
+        public int UserId { get; set; }
         public GroupGuideUser User { get; set; }
     }
 }

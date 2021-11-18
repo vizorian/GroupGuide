@@ -1,7 +1,11 @@
 ﻿using AutoMapper;
+using Group_Guide.Auth.Model;
+using Group_Guide.Data.Dtos.Auth;
 using Group_Guide.Data.Dtos.Topics;
 using Group_Guide.Data.Entities;
 using Group_Guide.Data.Repositories;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -20,19 +24,29 @@ namespace Group_Guide.Controllers
 
     [ApiController]
     [Route("api/games/{gameId}/campaigns/{campaignId}/topics")]
+    [Authorize(Roles = GroupGuideUserRoles.User)]
     public class TopicsController : ControllerBase
     {
         private readonly IMapper _mapper;
         private readonly IGamesRepository _gamesRepository;
         private readonly ICampaignsRepository _campaignsRepository;
         private readonly ITopicsRepository _topicsRepository;
+        private readonly IAuthorizationService _authorizationService;
+        private readonly UserManager<GroupGuideUser> _userManager;
 
-        public TopicsController(IMapper mapper, IGamesRepository gamesRepository, ICampaignsRepository campaignsRepository, ITopicsRepository topicsRepository)
+        public TopicsController(IMapper mapper,
+                                IGamesRepository gamesRepository,
+                                ICampaignsRepository campaignsRepository,
+                                ITopicsRepository topicsRepository,
+                                IAuthorizationService authorizationService,
+                                UserManager<GroupGuideUser> userManager)
         {
             _mapper = mapper;
             _gamesRepository = gamesRepository;
             _campaignsRepository = campaignsRepository;
             _topicsRepository = topicsRepository;
+            _authorizationService = authorizationService;
+            _userManager = userManager;
         }
 
         [HttpPost]
@@ -44,6 +58,10 @@ namespace Group_Guide.Controllers
             var campaign = await _campaignsRepository.GetAsync(gameId, campaignId);
             if (campaign == null) return NotFound();
 
+            var authorizationResult = await _authorizationService.AuthorizeAsync(User, campaign, PolicyNames.SameUser);
+            if (!authorizationResult.Succeeded)
+                return Forbid();
+
             var topic = _mapper.Map<Topic>(topicDto);
             topic.CampaignId = campaignId;
 
@@ -54,19 +72,39 @@ namespace Group_Guide.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<TopicDto>>> GetAll(int campaignId)
+        public async Task<ActionResult<IEnumerable<TopicDto>>> GetAll(int gameId, int campaignId)
         {
             var topics = await _topicsRepository.GetAllAsync(campaignId);
+
+            var campaign = await _campaignsRepository.GetAsync(gameId, campaignId);
+            if (campaign == null)
+                return NotFound();
+
+            campaign.Players = await _campaignsRepository.GetPlayersAsync(gameId, campaignId);
+
+            var authorizationResult = await _authorizationService.AuthorizeAsync(User, campaign, PolicyNames.UserBelongs);
+            if (!authorizationResult.Succeeded)
+                return Forbid();
 
             // Got all topics 200
             return Ok(topics.Select(o => _mapper.Map<TopicDto>(o)));
         }
 
         [HttpGet("{topicId}")]
-        public async Task<ActionResult<TopicDto>> Get(int campaignId, int topicId)
+        public async Task<ActionResult<TopicDto>> Get(int gameId, int campaignId, int topicId)
         {
+            var campaign = await _campaignsRepository.GetAsync(gameId, campaignId);
+            if (campaign == null)
+                return NotFound();
+
             var topic = await _topicsRepository.GetAsync(campaignId, topicId);
             if (topic == null) return NotFound();
+
+            campaign.Players = await _campaignsRepository.GetPlayersAsync(gameId, campaignId);
+
+            var authorizationResult = await _authorizationService.AuthorizeAsync(User, campaign, PolicyNames.UserBelongs);
+            if (!authorizationResult.Succeeded)
+                return Forbid();
 
             // Got topic by id 200
             return Ok(_mapper.Map<TopicDto>(topic));
@@ -82,6 +120,10 @@ namespace Group_Guide.Controllers
             if (topic == null)
                 return NotFound();
 
+            var authorizationResult = await _authorizationService.AuthorizeAsync(User, campaign, PolicyNames.SameUser);
+            if (!authorizationResult.Succeeded)
+                return Forbid();
+
             _mapper.Map(topicDto, topic);
 
             await _topicsRepository.UpdateAsync(topic);
@@ -91,10 +133,17 @@ namespace Group_Guide.Controllers
         }
 
         [HttpDelete("{topicId}")]
-        public async Task<ActionResult<TopicDto>> Delete(int campaignId, int topicId)
+        public async Task<ActionResult<TopicDto>> Delete(int gameId, int campaignId, int topicId)
         {
+            var campaign = await _campaignsRepository.GetAsync(gameId, campaignId);
+            if (campaign == null) return NotFound();
+
             var topic = await _topicsRepository.GetAsync(campaignId, topicId);
             if (topic == null) return NotFound();
+
+            var authorizationResult = await _authorizationService.AuthorizeAsync(User, campaign, PolicyNames.SameUser);
+            if (!authorizationResult.Succeeded)
+                return Forbid();
 
             await _topicsRepository.DeleteAsync(topic);
 
