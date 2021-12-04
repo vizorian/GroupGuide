@@ -6,6 +6,17 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="React - Copy\**" />
+    <Compile Remove="React\**" />
+    <Content Remove="React - Copy\**" />
+    <Content Remove="React\**" />
+    <EmbeddedResource Remove="React - Copy\**" />
+    <EmbeddedResource Remove="React\**" />
+    <None Remove="React - Copy\**" />
+    <None Remove="React\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="AutoMapper" Version="10.1.1" />
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="8.1.1" />
     <PackageReference Include="Azure.Extensions.AspNetCore.Configuration.Secrets" Version="1.0.0" />
