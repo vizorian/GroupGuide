@@ -64,8 +64,6 @@ namespace Group_Guide.Controllers
             var topic = await _topicsRepository.GetAsync(campaignId, topicId);
             if (topic == null) return NotFound();
 
-            campaign.Players = await _campaignsRepository.GetPlayersAsync(gameId, campaignId);
-
             var authorizationResult = await _authorizationService.AuthorizeAsync(User, campaign, PolicyNames.UserBelongs);
             if (!authorizationResult.Succeeded)
                 return Forbid();
@@ -89,8 +87,6 @@ namespace Group_Guide.Controllers
             if (campaign == null)
                 return NotFound();
 
-            campaign.Players = await _campaignsRepository.GetPlayersAsync(gameId, campaignId);
-
             var authorizationResult = await _authorizationService.AuthorizeAsync(User, campaign, PolicyNames.UserBelongs);
             if (!authorizationResult.Succeeded)
                 return Forbid();
@@ -110,8 +106,6 @@ namespace Group_Guide.Controllers
 
             var post = await _postsRepository.GetAsync(topicId, postId);
             if (post == null) return NotFound();
-
-            campaign.Players = await _campaignsRepository.GetPlayersAsync(gameId, campaignId);
 
             var authorizationResult = await _authorizationService.AuthorizeAsync(User, campaign, PolicyNames.UserBelongs);
             if (!authorizationResult.Succeeded)
@@ -133,8 +127,6 @@ namespace Group_Guide.Controllers
             var post = await _postsRepository.GetAsync(topicId, postId);
             if (post == null)
                 return NotFound();
-
-            campaign.Players = await _campaignsRepository.GetPlayersAsync(gameId, campaignId);
 
             var authorizationResult = await _authorizationService.AuthorizeAsync(User, campaign, PolicyNames.UserBelongs);
             if (!authorizationResult.Succeeded)
@@ -165,8 +157,6 @@ namespace Group_Guide.Controllers
 
             var post = await _postsRepository.GetAsync(topicId, postId);
             if (post == null) return NotFound();
-
-            campaign.Players = await _campaignsRepository.GetPlayersAsync(gameId, campaignId);
 
             var authorizationResult = await _authorizationService.AuthorizeAsync(User, campaign, PolicyNames.UserBelongs);
             if (!authorizationResult.Succeeded)

@@ -7,7 +7,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Group_Guide.Data.Entities
 {
-    public class Campaign : IUserOwnedResource, IUserBelongableResource
+    public class Campaign : IUserBelongableResource
     {
         public int Id { get; set; }
         public string Name { get; set; }
@@ -15,9 +15,6 @@ namespace Group_Guide.Data.Entities
         public DateTime CreationTimeUtc { get; set; }
         public int GameId { get; set; }
         public Game Game { get; set; }
-
-        [Required]
-        public string UserId { get; set; }
 
         public ICollection<GroupGuideUser> Players { get; set; }
     }

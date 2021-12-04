@@ -54,7 +54,11 @@ namespace Group_Guide.Controllers
 
             var campaign = _mapper.Map<Campaign>(campaignDto);
             campaign.GameId = gameId;
-            campaign.UserId = User.FindFirst(CustomClaims.UserId).Value;
+
+            var user = await _userManager.FindByIdAsync(User.FindFirst(CustomClaims.UserId).Value);
+            
+            campaign.Players = new List<GroupGuideUser>();
+            campaign.Players.Add(user);
 
             await _campaignsRepository.CreateAsync(campaign);
 
@@ -135,7 +139,7 @@ namespace Group_Guide.Controllers
                 return Forbid();
 
             _mapper.Map(campaignDto, campaign);
-            campaign.Players = await _campaignsRepository.GetPlayersAsync(gameId, campaignId);
+
             var user = await _userManager.FindByIdAsync(userId);
             if (!campaign.Players.Contains(user))
             {

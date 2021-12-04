@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Group_Guide.Migrations
 {
-    public partial class initial_create : Migration
+    public partial class initial : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -201,8 +201,7 @@ namespace Group_Guide.Migrations
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CreationTimeUtc = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    GameId = table.Column<int>(type: "int", nullable: false),
-                    UserId = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    GameId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {

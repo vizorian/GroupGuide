@@ -80,8 +80,6 @@ namespace Group_Guide.Controllers
             if (campaign == null)
                 return NotFound();
 
-            campaign.Players = await _campaignsRepository.GetPlayersAsync(gameId, campaignId);
-
             var authorizationResult = await _authorizationService.AuthorizeAsync(User, campaign, PolicyNames.UserBelongs);
             if (!authorizationResult.Succeeded)
                 return Forbid();
@@ -98,8 +96,6 @@ namespace Group_Guide.Controllers
 
             var session = await _sessionsRepository.GetAsync(campaignId, sessionId);
             if (session == null) return NotFound();
-
-            campaign.Players = await _campaignsRepository.GetPlayersAsync(gameId, campaignId);
 
             var authorizationResult = await _authorizationService.AuthorizeAsync(User, campaign, PolicyNames.UserBelongs);
             if (!authorizationResult.Succeeded)

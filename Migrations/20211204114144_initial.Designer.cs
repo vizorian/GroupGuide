@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Group_Guide.Migrations
 {
     [DbContext(typeof(GroupGuideContext))]
-    [Migration("20211118185331_initial_create")]
-    partial class initial_create
+    [Migration("20211204114144_initial")]
+    partial class initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -153,10 +153,6 @@ namespace Group_Guide.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");

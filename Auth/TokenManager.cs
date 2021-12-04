@@ -86,7 +86,7 @@ namespace Group_Guide.Auth
             var accessSecurityToken = new JwtSecurityToken(
                 issuer: _issuer,
                 audience: _audience,
-                expires: DateTime.UtcNow.AddMinutes(1),
+                expires: DateTime.UtcNow.AddHours(3),
                 claims: authClaims,
                 signingCredentials: new SigningCredentials(_authSigningKey, SecurityAlgorithms.HmacSha256)
             );

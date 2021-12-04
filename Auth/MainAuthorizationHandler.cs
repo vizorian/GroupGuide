@@ -27,8 +27,16 @@ namespace Group_Guide.Auth
             {
                 if(requirement is SameUserRequirement)
                 {
-                    if (IsOwner(context.User, context.Resource as IUserOwnedResource))
-                        context.Succeed(requirement);
+                    if (context.Resource is IUserOwnedResource)
+                    {
+                        if (IsOwner(context.User, context.Resource as IUserOwnedResource))
+                            context.Succeed(requirement);
+                    }
+                    else
+                    {
+                        if (IsOwnerBelongable(context.User, context.Resource as IUserBelongableResource))
+                            context.Succeed(requirement);
+                    }
                 }
                 else if(requirement is UserBelongsRequirement)
                 {
@@ -46,12 +54,19 @@ namespace Group_Guide.Auth
             return false;
         }
 
+        private bool IsOwnerBelongable(ClaimsPrincipal user, IUserBelongableResource resource)
+        {
+            if (user.IsInRole(GroupGuideUserRoles.Admin) || user.FindFirst(CustomClaims.UserId).Value == resource.Players.Last().Id)
+                return true;
+            return false;
+        }
+
         private async Task<bool> IsPartOfAsync(ClaimsPrincipal user, IUserBelongableResource resource)
         {
             var playersNames = resource.Players.Select(p => p.Id).ToList();
-            if (user.IsInRole(GroupGuideUserRoles.Admin) || IsOwner(user, resource as IUserOwnedResource) || playersNames.Contains(user.FindFirst(CustomClaims.UserId).Value))
-                return true;
-            return false;
+            return user.IsInRole(GroupGuideUserRoles.Admin) ||
+                   playersNames.Last() == user.FindFirst(CustomClaims.UserId).Value ||
+                   playersNames.Contains(user.FindFirst(CustomClaims.UserId).Value);
         }
     }
 

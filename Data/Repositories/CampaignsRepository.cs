@@ -13,7 +13,6 @@ namespace Group_Guide.Data.Repositories
         Task CreateAsync(Campaign campaign);
         Task<IEnumerable<Campaign>> GetAllAsync(int gameId);
         Task<Campaign> GetAsync(int gameId, int campaignId);
-        Task<List<GroupGuideUser>> GetPlayersAsync(int gameId, int campaignId);
         Task RemovePlayerAsync(int campaignId, GroupGuideUser player);
         Task UpdateAsync(Campaign campaign);
         Task DeleteAsync(Campaign campaign);
@@ -36,24 +35,20 @@ namespace Group_Guide.Data.Repositories
 
         public async Task<IEnumerable<Campaign>> GetAllAsync(int gameId)
         {
-            return await _groupGuideContext.Campaigns.Where(o => o.GameId == gameId).ToListAsync();
+            return await _groupGuideContext.Campaigns.Where(o => o.GameId == gameId).Include("Players").ToListAsync();
         }
 
         public async Task<Campaign> GetAsync(int gameId, int campaignId)
         {
-            return await _groupGuideContext.Campaigns.FirstOrDefaultAsync(o => o.GameId == gameId && o.Id == campaignId);
-        }
-
-        public async Task<List<GroupGuideUser>> GetPlayersAsync(int gameId, int campaignId)
-        {
-            return await _groupGuideContext.Campaigns.Where(o => o.GameId == gameId && o.Id == campaignId).SelectMany(o => o.Players).ToListAsync();
+            return _groupGuideContext.Campaigns.Include("Players")
+                .FirstOrDefault(c => c.Id == campaignId && c.GameId == gameId);
         }
 
         public async Task RemovePlayerAsync(int campaignId, GroupGuideUser player)
         {
-            var campaignToUpdate = _groupGuideContext.Campaigns.Find(campaignId);
-            _groupGuideContext.Entry(campaignToUpdate).Collection("Players").Load();
-            campaignToUpdate.Players.Remove(player);
+            var campaign = _groupGuideContext.Campaigns.FirstOrDefault(c => c.Id == campaignId);
+            await _groupGuideContext.Entry(campaign).Collection("Players").LoadAsync();
+            campaign.Players.Remove(player);
             await _groupGuideContext.SaveChangesAsync();
         }
 
