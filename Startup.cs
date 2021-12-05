@@ -29,6 +29,8 @@ namespace Group_Guide
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddCors();
+
             services.AddIdentity<GroupGuideUser, IdentityRole>()
                 .AddEntityFrameworkStores<GroupGuideContext>()
                 .AddDefaultTokenProviders();
@@ -73,6 +75,9 @@ namespace Group_Guide
             {
                 app.UseDeveloperExceptionPage();
             }
+
+            app.UseCors(builder => builder
+                .AllowAnyOrigin());
 
             app.UseRouting();
             app.UseAuthentication();
