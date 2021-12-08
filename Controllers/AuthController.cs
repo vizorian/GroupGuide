@@ -36,14 +36,14 @@ namespace Group_Guide.Controllers
         [Route("register")]
         public async Task<IActionResult> Register(RegisterUserDto registerUserDto)
         {
-            var user = await _userManager.FindByNameAsync(registerUserDto.UserName);
+            var user = await _userManager.FindByNameAsync(registerUserDto.Username);
             if (user != null)
                 return BadRequest("User already exists");
 
             var newUser = new GroupGuideUser
             {
                 Email = registerUserDto.Email,
-                UserName = registerUserDto.UserName
+                UserName = registerUserDto.Username
             };
 
             var createUserResult = await _userManager.CreateAsync(newUser, registerUserDto.Password);
@@ -58,7 +58,7 @@ namespace Group_Guide.Controllers
         [Route("login")]
         public async Task<IActionResult> Login(LoginDto loginDto)
         {
-            var user = await _userManager.FindByNameAsync(loginDto.UserName);
+            var user = await _userManager.FindByNameAsync(loginDto.Username);
             if (user == null)
                 return BadRequest("Username or password is incorrect.");
 

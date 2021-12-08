@@ -5,5 +5,5 @@ using System.Threading.Tasks;
 
 namespace Group_Guide.Data.Dtos.Auth
 {
-    public record LoginDto(string UserName, string Password);
+    public record LoginDto(string Username, string Password);
 }

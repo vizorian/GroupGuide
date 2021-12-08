@@ -1,58 +1,50 @@
-import React from "react";
+import React, { useState } from "react";
 import axios from "axios";
 import "bootstrap/dist/css/bootstrap.min.css";
 // import axios from "axios";
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import Home from "./Pages/Home";
+import {
+  BrowserRouter as Router,
+  Route,
+  Routes,
+  Navigate,
+} from "react-router-dom";
 import Navbar from "./Components/Navbar/NavigationBar";
-import Welcome from "./Pages/Welcome";
+import Home from "./Components/Pages/Home";
+import Welcome from "./Components/Pages/Welcome";
+import Login from "./Components/Login/Login";
+import useToken from "./Components/App/useToken";
+import Register from "./Components/Register/Register";
 
-const api = axios.create({
-  baseURL: "http://localhost:5000/api/",
-});
+import GamesGetAll from "./Components/Games/GameGetAll";
+import GamesGet from "./Components/Games/GameGet";
+import GamesCreate from "./Components/Games/GameCreate";
+import GamesDelete from "./Components/Games/GameDelete";
 
 function App() {
+  const { token, setToken } = useToken();
+
   return (
     <Router>
-      <Navbar />
-
+      <Navbar token={token} setToken={setToken} />
       <Routes>
-        <Route path="/" element={<Welcome />} />
+        <Route path="/" element={<Navigate to="/login" />} />
         <Route path="/home" element={<Home />} />
+
+        {/* User */}
+        <Route path="/register" element={<Register />} />
+        <Route path="/login" element={<Login setToken={setToken} />} />
+
+        {/* Games */}
+        <Route path="/games" element={<GamesGetAll token={token} />} />
+        <Route path="/games/:id" element={<GamesGet token={token} />} />
+        <Route
+          path="/games/:id/delete"
+          element={<GamesDelete token={token} />}
+        />
+        <Route path="/games/create" element={<GamesCreate token={token} />} />
       </Routes>
     </Router>
   );
 }
 
-// testing interactions
-/*
-const api = axios.create({
-  baseURL: "http://localhost:5000/api/games/",
-});
-
-class App extends Component {
-  state = {
-    games: [],
-  };
-
-  constructor() {
-    super();
-    api.get("/").then((res) => {
-      console.log(res.data);
-      this.setState({ games: res.data });
-    });
-  }
-
-  render() {
-    return (
-      <div>
-        <header>Yo my man.</header>
-        {this.state.games.map((game) => (
-          <h2 key={game.id}>{game.name}</h2>
-        ))}
-      </div>
-    );
-  }
-}
-*/
 export default App;
