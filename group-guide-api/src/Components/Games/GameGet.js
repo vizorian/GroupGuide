@@ -3,6 +3,10 @@ import useAxios from "axios-hooks";
 import { useParams } from "react-router";
 import GameDelete from "./GameDelete";
 import GameUpdate from "./GameUpdate";
+import CampaignCreate from "../Campaigns/CampaignCreate";
+import CampaignGetAll from "../Campaigns/CampaignGetAll";
+import jwt_decode from "jwt-decode";
+import { Container, Dropdown, Row, Col, DropdownButton } from "react-bootstrap";
 
 export default function GameGet({ token }) {
   const { id } = useParams();
@@ -18,46 +22,153 @@ export default function GameGet({ token }) {
     { useCache: false }
   );
 
-  // Get campaign list
-  const [
-    { data: campaigns, loading: campaignsLoading, error: campaignsError },
-  ] = useAxios(
-    {
-      url: `http://localhost:5000/api/games/${id}/campaigns`,
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    },
-    { useCache: false }
-  );
-
   if (gameLoading) {
     return <></>;
   }
-  if (campaignsLoading) {
-    return <></>;
+
+  if (token == null) {
+    return (
+      <Container>
+        <Row>
+          <Col md="auto">
+            <span className="fw-bold" style={{ fontSize: "60px" }}>
+              {game.name}
+            </span>
+          </Col>
+          <Dropdown.Divider />
+        </Row>
+        <Row>
+          <Col />
+          <Col md="auto"></Col>
+        </Row>
+        <Row>
+          <Col xxl={8} md="auto">
+            <h4>{game.description}</h4>
+          </Col>
+          <Col />
+          <Dropdown.Divider />
+        </Row>
+        <Row>
+          <Col md="auto">
+            <span className="fw-bold" style={{ fontSize: "50px" }}>
+              Campaigns
+            </span>
+          </Col>
+          <Col />
+        </Row>
+        <Row>
+          <Col />
+          <Col md="auto">
+            <CampaignCreate token={token} gameId={game.id} />
+          </Col>
+          <Dropdown.Divider />
+        </Row>
+
+        <CampaignGetAll gameId={game.id} />
+      </Container>
+    );
   }
 
-  console.log(game);
+  if (token != null) {
+    var decoded = jwt_decode(token);
+    const userId = decoded["userId"];
+    const userRole =
+      decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"];
+
+    if (!userRole.includes("Admin")) {
+      return (
+        <Container>
+          <Row>
+            <Col md="auto">
+              <span className="fw-bold" style={{ fontSize: "60px" }}>
+                {game.name}
+              </span>
+            </Col>
+            <Dropdown.Divider />
+          </Row>
+          <Row>
+            <Col />
+            <Col md="auto"></Col>
+          </Row>
+          <Row>
+            <Col xxl={8} md="auto">
+              <h4>{game.description}</h4>
+            </Col>
+            <Col />
+            <Dropdown.Divider />
+          </Row>
+          <Row>
+            <Col md="auto">
+              <span className="fw-bold" style={{ fontSize: "50px" }}>
+                Campaigns
+              </span>
+            </Col>
+            <Col />
+          </Row>
+          <Row>
+            <Col />
+            <Col md="auto">
+              <CampaignCreate token={token} gameId={game.id} />
+            </Col>
+            <Dropdown.Divider />
+          </Row>
+
+          <CampaignGetAll gameId={game.id} />
+        </Container>
+      );
+    }
+  }
 
   return (
-    <div>
-      <h1>
-        {game.id} - {game.name}
-      </h1>
+    <Container>
+      <Row>
+        <Col md="auto">
+          <span className="fw-bold" style={{ fontSize: "60px" }}>
+            {game.name}
+          </span>
+        </Col>
+        <Dropdown.Divider />
+      </Row>
+      <Row>
+        <Col />
+        <Col md="auto">
+          <DropdownButton
+            title={
+              <span className="buttonless" style={{ fontSize: "28px" }}>
+                Actions
+              </span>
+            }
+            variant="none"
+          >
+            <GameUpdate token={token} game={game} />{" "}
+            <GameDelete token={token} game={game} />
+          </DropdownButton>
+        </Col>
+      </Row>
+      <Row>
+        <Col xxl={8} md="auto">
+          <h4>{game.description}</h4>
+        </Col>
+        <Col />
+        <Dropdown.Divider />
+      </Row>
+      <Row>
+        <Col md="auto">
+          <span className="fw-bold" style={{ fontSize: "50px" }}>
+            Campaigns
+          </span>
+        </Col>
+        <Col />
+      </Row>
+      <Row>
+        <Col />
+        <Col md="auto">
+          <CampaignCreate token={token} gameId={game.id} />
+        </Col>
+        <Dropdown.Divider />
+      </Row>
 
-      <GameDelete token={token} game={game} />
-      <GameUpdate token={token} game={game} />
-
-      <h3>{game.description}</h3>
-      {campaigns &&
-        campaigns.map((campaign) => (
-          <p>
-            {campaign.id} - {campaign.name}
-            <br />
-            {game.description}
-          </p>
-        ))}
-    </div>
+      <CampaignGetAll gameId={game.id} />
+    </Container>
   );
 }

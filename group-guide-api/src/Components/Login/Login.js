@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
-import { Form, Button } from "react-bootstrap";
+import { Form, Button, Container } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 
 async function loginUser(credentials) {
@@ -30,30 +30,32 @@ export default function Login({ setToken }) {
   };
 
   return (
-    <Form onSubmit={handleSubmit}>
-      <Form.Group className="mb-3" controlId="formUsername">
-        <Form.Label>Username</Form.Label>
-        <Form.Control
-          type="username"
-          placeholder="Enter username"
-          onChange={(e) => setUsername(e.target.value)}
-        />
-      </Form.Group>
+    <Container>
+      <Form onSubmit={handleSubmit}>
+        <Form.Group className="mb-3" controlId="formUsername">
+          <Form.Label>Username</Form.Label>
+          <Form.Control
+            type="username"
+            placeholder="Enter username"
+            onChange={(e) => setUsername(e.target.value)}
+          />
+        </Form.Group>
 
-      <Form.Group
-        className="mb-3"
-        controlId="formPassword"
-        onChange={(e) => setPassword(e.target.value)}
-      >
-        <Form.Label>Password</Form.Label>
-        <Form.Control type="password" placeholder="Enter password" />
-      </Form.Group>
+        <Form.Group
+          className="mb-3"
+          controlId="formPassword"
+          onChange={(e) => setPassword(e.target.value)}
+        >
+          <Form.Label>Password</Form.Label>
+          <Form.Control type="password" placeholder="Enter password" />
+        </Form.Group>
 
-      <Button variant="primary" type="submit">
-        {/* <Nav.Link href="/home">Login</Nav.Link> */}
-        Login
-      </Button>
-    </Form>
+        <Button variant="primary" type="submit">
+          {/* <Nav.Link href="/home">Login</Nav.Link> */}
+          Login
+        </Button>
+      </Form>
+    </Container>
   );
 }
 

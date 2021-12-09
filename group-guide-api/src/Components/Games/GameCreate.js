@@ -1,12 +1,16 @@
 import React from "react";
 import useAxios from "axios-hooks";
-import { Form, Button } from "react-bootstrap";
+import { Form, Button, Modal } from "react-bootstrap";
 import { useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
+import jwt_decode from "jwt-decode";
+import { useState } from "react";
 
 export default function GameCreate({ token }) {
+  const [show, setShow] = useState(false);
+
+  const handleClose = () => setShow(false);
+  const handleShow = () => setShow(true);
   const { register, handleSubmit } = useForm();
-  const navigate = useNavigate();
 
   const [{ data, loading, error }, doPost] = useAxios(
     {
@@ -27,39 +31,66 @@ export default function GameCreate({ token }) {
       },
     });
 
-    alert(`Game ${data.name} has been added.`);
-    navigate("/games");
+    handleClose();
+    window.location.reload();
   };
 
   if (loading) {
     return <></>;
   }
 
+  if (token != null) {
+    var decoded = jwt_decode(token);
+    const userId = decoded["userId"];
+    const userRole =
+      decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"];
+
+    if (!userRole.includes("Admin")) {
+      return <></>;
+    }
+  } else {
+    return <></>;
+  }
+
   return (
-    <Form onSubmit={handleSubmit(onSubmit)}>
-      <Form.Group className="mb-3">
-        <Form.Label htmlFor="name">Name</Form.Label>
-        <Form.Control
-          required
-          type="text"
-          placeholder="Enter campaign name"
-          {...register("name")}
-        />
-      </Form.Group>
+    <>
+      <h4 className="buttonless" onClick={handleShow}>
+        Create game
+      </h4>
 
-      <Form.Group className="mb-3">
-        <Form.Label htmlFor="description">Description</Form.Label>
-        <Form.Control
-          required
-          type="text"
-          placeholder="Enter campaign description"
-          {...register("description")}
-        />
-      </Form.Group>
+      <Modal show={show} onHide={handleClose}>
+        <Modal.Header closeButton>
+          <Modal.Title>Create game</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form id="createForm" onSubmit={handleSubmit(onSubmit)}>
+            <Form.Group className="mb-3">
+              <Form.Label htmlFor="name">Name</Form.Label>
+              <Form.Control
+                required
+                type="text"
+                placeholder="Enter game name"
+                {...register("name")}
+              />
+            </Form.Group>
 
-      <Button variant="primary" type="submit">
-        Create
-      </Button>
-    </Form>
+            <Form.Group className="mb-3">
+              <Form.Label htmlFor="description">Description</Form.Label>
+              <Form.Control
+                required
+                type="text"
+                placeholder="Enter game description"
+                {...register("description")}
+              />
+            </Form.Group>
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="primary" type="submit" form="createForm">
+            Create
+          </Button>
+        </Modal.Footer>
+      </Modal>
+    </>
   );
 }

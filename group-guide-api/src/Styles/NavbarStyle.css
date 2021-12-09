@@ -1,0 +1,43 @@
+.navbar {
+  margin-top: 20px;
+  border-top: 1px solid black;
+  border-bottom: 1px solid black;
+}
+
+.nav-dropdown {
+  transition: all 0.3s;
+  color: #e974c4;
+  font-weight: bold;
+}
+
+.navbar-light .navbar-brand {
+  transition: none;
+  color: #e974c4;
+}
+
+.navbar-light .navbar-brand:hover {
+  transition: none;
+  color: #e974c4;
+}
+
+.navbar-light .dropdown .nav-link {
+  transition: all 0.3s;
+  color: #e974c4;
+  font-weight: bold;
+}
+
+.navbar-light .dropdown .nav-link:hover {
+  transition: 0.3s ease-out;
+  color: #b45496;
+}
+
+.navbar-light .navbar-nav .nav-link {
+  transition: all 0.3s;
+  color: #e974c4;
+  font-weight: bold;
+}
+
+.navbar-light .navbar-nav .nav-link:hover {
+  transition: 0.3s ease-out;
+  color: #b45496;
+}

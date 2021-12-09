@@ -1,7 +1,6 @@
 import React, { useState } from "react";
-import { Form, Button, Nav } from "react-bootstrap";
+import { Form, Button } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
-import { register } from "react-scroll/modules/mixins/scroller";
 
 async function registerUser(credentials) {
   return fetch("http://localhost:5000/api/register", {

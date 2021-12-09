@@ -7,10 +7,24 @@
   padding: 0;
 }
 
-logo {
-  font-family: "Montserrat", sans-serif;
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-  font-size: 50px;
+.buttonless {
+  font-weight: bold;
+  transition: all 0.3s;
+  color: #e974c4;
+}
+
+.buttonless:hover {
+  transition: 0.3s ease-out;
+  color: #b45496;
+}
+
+.button-text {
+  font-weight: bold;
+  transition: all 0.3s;
+  color: #e974c4;
+}
+
+.button-text:hover {
+  transition: 0.3s ease-out;
+  color: #b45496;
 }

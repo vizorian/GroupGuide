@@ -1,7 +1,13 @@
 import React from "react";
 import useAxios from "axios-hooks";
-import { Link } from "react-router-dom";
-
+import GameCreate from "./GameCreate";
+import {
+  Container,
+  Dropdown,
+  Row,
+  Col,
+  Button,
+} from "react-bootstrap";
 export default function GameGetAll({ token }) {
   const [{ data, loading, error }] = useAxios(
     {
@@ -18,19 +24,40 @@ export default function GameGetAll({ token }) {
   }
 
   return (
-    <div>
-      <Link to="create">Create game</Link>
-      <br />
+    <Container>
+      <Row>
+        <Col md="auto">
+          <span className="fw-bold" style={{ fontSize: "100px" }}>
+            Games
+          </span>
+        </Col>
+        <Col />
+      </Row>
+      <Row>
+        <Col />
+        <Col md="auto">
+          <GameCreate token={token} />
+        </Col>
+        <Dropdown.Divider />
+      </Row>
 
       {data &&
         data.map((game) => (
-          <li className="p-3 hover:bg-green-100 border" key={game.id}>
-            <Link to={`${game.id}`}>
-              {game.id} - {game.name} <br />
-              {game.description}
-            </Link>
-          </li>
+          <>
+            <Row key={game.id}>
+              <Col>
+                <Button variant="none" href={`games/${game.id}`}>
+                  <span className="button-text" style={{ fontSize: "35px" }}>
+                    {game.name}
+                  </span>
+                </Button>
+              </Col>
+            </Row>
+            <Row>
+              <Dropdown.Divider />
+            </Row>
+          </>
         ))}
-    </div>
+    </Container>
   );
 }

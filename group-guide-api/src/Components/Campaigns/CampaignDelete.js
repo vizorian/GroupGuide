@@ -3,9 +3,8 @@ import useAxios from "axios-hooks";
 import { Button, Modal, Dropdown } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-import jwt_decode from "jwt-decode";
 
-export default function GameDelete({ token, game }) {
+export default function CampaignDelete({ token, gameId, campaign }) {
   const [show, setShow] = useState(false);
 
   const handleClose = () => setShow(false);
@@ -17,7 +16,7 @@ export default function GameDelete({ token, game }) {
   const [{ error: deleteError }, doDelete] = useAxios(
     {
       method: `DELETE`,
-      url: `http://localhost:5000/api/games/${game.id}`,
+      url: `http://localhost:5000/api/games/${gameId}/campaigns/${campaign.id}`,
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -27,21 +26,8 @@ export default function GameDelete({ token, game }) {
 
   const handleDelete = () => {
     doDelete();
-    navigate("/games");
+    navigate(`/games/${gameId}/campaigns`);
   };
-
-  if (token != null) {
-    var decoded = jwt_decode(token);
-    const userId = decoded["userId"];
-    const userRole =
-      decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"];
-
-    if (!userRole.includes("Admin")) {
-      return <></>;
-    }
-  } else {
-    return <></>;
-  }
 
   return (
     <>
@@ -49,11 +35,11 @@ export default function GameDelete({ token, game }) {
         Delete
       </Dropdown.Item>
 
-      <Modal show={show} onHide={handleClose}>
+      <Modal show={show} onHide={handleClose} centered>
         <Modal.Header closeButton>
           <Modal.Title>Delete confirmation</Modal.Title>
         </Modal.Header>
-        <Modal.Body>Do you wish to delete game {game.name}?</Modal.Body>
+        <Modal.Body>Do you wish to delete campaign {campaign.name}?</Modal.Body>
         <Modal.Footer>
           <Button variant="danger" onClick={(handleClose, handleDelete)}>
             Delete
