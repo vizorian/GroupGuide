@@ -12,7 +12,7 @@ export default function GameGet({ token }) {
   const { id } = useParams();
 
   // Get game
-  const [{ data: game, loading: gameLoading, error: gameError }] = useAxios(
+  const [{ data: game, loading: gameLoading, error: gameError }, manualGet] = useAxios(
     {
       url: `http://localhost:5000/api/games/${id}`,
       headers: {
@@ -64,7 +64,7 @@ export default function GameGet({ token }) {
           <Dropdown.Divider />
         </Row>
 
-        <CampaignGetAll gameId={game.id} />
+        <CampaignGetAll token={token} gameId={game.id} />
       </Container>
     );
   }
@@ -140,8 +140,8 @@ export default function GameGet({ token }) {
             }
             variant="none"
           >
-            <GameUpdate token={token} game={game} />{" "}
-            <GameDelete token={token} game={game} />
+            <GameUpdate token={token} game={game} manualGet={manualGet}/>{" "}
+            <GameDelete token={token} game={game} manualGet={manualGet}/>
           </DropdownButton>
         </Col>
       </Row>

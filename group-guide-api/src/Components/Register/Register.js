@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Form, Button } from "react-bootstrap";
+import { Form, Button, Container } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 
 async function registerUser(credentials) {
@@ -33,51 +33,53 @@ export default function Register() {
   };
 
   return (
-    <Form onSubmit={handleSubmit}>
-      <Form.Group className="mb-3" controlId="formBasicUsername">
-        <Form.Label>Username</Form.Label>
-        <Form.Control
-          required
-          type="username"
-          placeholder="Enter username"
-          onChange={(e) => setUsername(e.target.value)}
-        />
-        {/* <Form.Control.Feedback type="invalid">
+    <Container>
+      <Form onSubmit={handleSubmit}>
+        <Form.Group className="mb-3" controlId="formBasicUsername">
+          <Form.Label>Username</Form.Label>
+          <Form.Control
+            required
+            type="username"
+            placeholder="Enter username"
+            onChange={(e) => setUsername(e.target.value)}
+          />
+          {/* <Form.Control.Feedback type="invalid">
           Please provide a valid username.
         </Form.Control.Feedback> */}
-      </Form.Group>
+        </Form.Group>
 
-      <Form.Group className="mb-3" controlId="formBasicEmail">
-        <Form.Label>Email</Form.Label>
-        <Form.Control
-          required
-          type="email"
-          placeholder="Enter email"
-          onChange={(e) => setEmail(e.target.value)}
-        />
-        {/* <Form.Control.Feedback type="invalid">
+        <Form.Group className="mb-3" controlId="formBasicEmail">
+          <Form.Label>Email</Form.Label>
+          <Form.Control
+            required
+            type="email"
+            placeholder="Enter email"
+            onChange={(e) => setEmail(e.target.value)}
+          />
+          {/* <Form.Control.Feedback type="invalid">
           Please provide a valid email address.
         </Form.Control.Feedback> */}
-      </Form.Group>
+        </Form.Group>
 
-      <Form.Group
-        required
-        className="mb-3"
-        controlId="formBasicPassword"
-        onChange={(e) => setPassword(e.target.value)}
-      >
-        <Form.Label>Password</Form.Label>
-        <Form.Control type="password" placeholder="Enter password" />
-        {/* <Form.Control.Feedback type="invalid">
+        <Form.Group
+          required
+          className="mb-3"
+          controlId="formBasicPassword"
+          onChange={(e) => setPassword(e.target.value)}
+        >
+          <Form.Label>Password</Form.Label>
+          <Form.Control type="password" placeholder="Enter password" />
+          {/* <Form.Control.Feedback type="invalid">
           Please provide a valid password which containts: 1 uppercase symbol, 1
           lowercase symbol and 1 any symbol.
         </Form.Control.Feedback> */}
-      </Form.Group>
+        </Form.Group>
 
-      <Button variant="primary" type="submit">
-        {/* <Nav.Link href="/home">Login</Nav.Link> */}
-        Register
-      </Button>
-    </Form>
+        <Button variant="primary" type="submit">
+          {/* <Nav.Link href="/home">Login</Nav.Link> */}
+          Register
+        </Button>
+      </Form>
+    </Container>
   );
 }

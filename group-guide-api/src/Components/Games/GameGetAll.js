@@ -1,13 +1,8 @@
 import React from "react";
 import useAxios from "axios-hooks";
 import GameCreate from "./GameCreate";
-import {
-  Container,
-  Dropdown,
-  Row,
-  Col,
-  Button,
-} from "react-bootstrap";
+import { Container, Dropdown, Row, Col, Button } from "react-bootstrap";
+import { Link } from "react-router-dom";
 export default function GameGetAll({ token }) {
   const [{ data, loading, error }] = useAxios(
     {
@@ -46,11 +41,11 @@ export default function GameGetAll({ token }) {
           <>
             <Row key={game.id}>
               <Col>
-                <Button variant="none" href={`games/${game.id}`}>
+                <Link className="a-custom" to={`${game.id}`}>
                   <span className="button-text" style={{ fontSize: "35px" }}>
                     {game.name}
                   </span>
-                </Button>
+                </Link>
               </Col>
             </Row>
             <Row>

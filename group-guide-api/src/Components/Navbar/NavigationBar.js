@@ -1,5 +1,5 @@
 import React from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate, Link } from "react-router-dom";
 import { Navbar, Container, Nav, NavDropdown, Dropdown } from "react-bootstrap";
 import jwt_decode from "jwt-decode";
 import "../../Styles/NavbarStyle.css";
@@ -7,9 +7,12 @@ import "../../Styles/NavbarStyle.css";
 export default function NavigationBar({ token }) {
   const location = useLocation();
 
+  const navigate = useNavigate();
+
   const logoutUser = () => {
     sessionStorage.clear();
-    window.location.reload(false);
+    navigate("home");
+    window.location.reload();
   };
 
   if (location.pathname === "/login") {
@@ -33,12 +36,27 @@ export default function NavigationBar({ token }) {
             <Navbar.Toggle />
             <Navbar.Collapse>
               <Nav className="me-auto">
-                <Nav.Link href="/games" style={{ fontSize: "18px" }}>
+                <Link
+                  className="nav-link a-custom"
+                  to="home"
+                  style={{ fontSize: "18px" }}
+                >
+                  Home
+                </Link>
+                <Link
+                  className="nav-link a-custom"
+                  to="games"
+                  style={{ fontSize: "18px" }}
+                >
                   Games
-                </Nav.Link>
-                <Nav.Link href="/register" style={{ fontSize: "18px" }}>
+                </Link>
+                <Link
+                  className="nav-link a-custom"
+                  to="/register"
+                  style={{ fontSize: "18px" }}
+                >
                   Register
-                </Nav.Link>
+                </Link>
               </Nav>
               <NavDropdown
                 title={
@@ -47,11 +65,13 @@ export default function NavigationBar({ token }) {
                   </span>
                 }
               >
-                <NavDropdown.Item href="/login">Login</NavDropdown.Item>
+                <Link className="nav-link a-custom" to="/login">
+                  Login
+                </Link>
                 <Dropdown.Divider />
-                <NavDropdown.Item href="/register">
+                <Link className="nav-link a-custom" to="/register">
                   New around here? Sign up
-                </NavDropdown.Item>
+                </Link>
               </NavDropdown>
             </Navbar.Collapse>
           </Container>
@@ -68,12 +88,20 @@ export default function NavigationBar({ token }) {
           <Navbar.Toggle />
           <Navbar.Collapse>
             <Nav className="me-auto">
-              <Nav.Link href="/home" style={{ fontSize: "18px" }}>
+              <Link
+                className="nav-link a-custom"
+                to="home"
+                style={{ fontSize: "18px" }}
+              >
                 Home
-              </Nav.Link>
-              <Nav.Link href="/games" style={{ fontSize: "18px" }}>
+              </Link>
+              <Link
+                className="nav-link a-custom"
+                to="games"
+                style={{ fontSize: "18px" }}
+              >
                 Games
-              </Nav.Link>
+              </Link>
             </Nav>
             <NavDropdown
               title={

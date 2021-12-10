@@ -1,6 +1,7 @@
 import React from "react";
 import useAxios from "axios-hooks";
 import { Form, Button, Modal } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import jwt_decode from "jwt-decode";
 import { useState } from "react";
@@ -12,7 +13,9 @@ export default function GameCreate({ token }) {
   const handleShow = () => setShow(true);
   const { register, handleSubmit } = useForm();
 
-  const [{ data, loading, error }, doPost] = useAxios(
+  const navigate = useNavigate();
+
+  const [{ data, loading, error, response }, doPost] = useAxios(
     {
       method: `POST`,
       url: `http://localhost:5000/api/games`,
@@ -32,11 +35,14 @@ export default function GameCreate({ token }) {
     });
 
     handleClose();
-    window.location.reload();
   };
 
   if (loading) {
     return <></>;
+  }
+
+  if (response) {
+    navigate(`/games/${response.data.id}`);
   }
 
   if (token != null) {
@@ -58,7 +64,7 @@ export default function GameCreate({ token }) {
         Create game
       </h4>
 
-      <Modal show={show} onHide={handleClose}>
+      <Modal show={show} onHide={handleClose} centered>
         <Modal.Header closeButton>
           <Modal.Title>Create game</Modal.Title>
         </Modal.Header>

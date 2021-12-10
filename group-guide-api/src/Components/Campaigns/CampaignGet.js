@@ -12,7 +12,7 @@ export default function CampaignGet({ token }) {
   const { gameId, id } = useParams();
 
   // Get campaign
-  const [{ data, loading, error }] = useAxios(
+  const [{ data, loading, error }, manualGet] = useAxios(
     {
       url: `http://localhost:5000/api/games/${gameId}/campaigns/${id}`,
       headers: {
@@ -167,9 +167,20 @@ export default function CampaignGet({ token }) {
                 token={token}
                 gameId={gameId}
                 campaignId={data.id}
+                manualGet={manualGet}
               />
-              <CampaignUpdate token={token} gameId={gameId} campaign={data} />
-              <CampaignDelete token={token} gameId={gameId} campaign={data} />
+              <CampaignUpdate
+                token={token}
+                gameId={gameId}
+                campaign={data}
+                manualGet={manualGet}
+              />
+              <CampaignDelete
+                token={token}
+                gameId={gameId}
+                campaign={data}
+                manualGet={manualGet}
+              />
             </DropdownButton>
           </Col>
         </Row>

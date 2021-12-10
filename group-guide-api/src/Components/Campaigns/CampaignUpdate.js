@@ -4,14 +4,14 @@ import { Form, Button, Modal, Dropdown } from "react-bootstrap";
 import { useForm } from "react-hook-form";
 import { useState } from "react";
 
-export default function CampaignUpdate({ token, gameId, campaign }) {
+export default function CampaignUpdate({ token, gameId, campaign, manualGet }) {
   const [show, setShow] = useState(false);
 
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
   const { register, handleSubmit } = useForm();
 
-  const [{ data, loading, error }, doPut] = useAxios(
+  const [{ data, loading, error, response }, doPut] = useAxios(
     {
       method: `PUT`,
       url: `http://localhost:5000/api/games/${gameId}/campaigns/${campaign.id}`,
@@ -31,11 +31,14 @@ export default function CampaignUpdate({ token, gameId, campaign }) {
     });
 
     handleClose();
-    window.location.reload();
   };
 
   if (loading) {
     return <></>;
+  }
+
+  if (response) {
+    manualGet();
   }
 
   return (

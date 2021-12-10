@@ -28,3 +28,16 @@
   transition: 0.3s ease-out;
   color: #b45496;
 }
+
+.a-custom {
+  text-decoration: none;
+}
+
+.footer-custom {
+  background-color: white;
+  color: black;
+  height: 100px;
+  text-align: center;
+  padding-top: 40px;
+  padding-bottom: 50px;
+}

@@ -41,3 +41,7 @@
   transition: 0.3s ease-out;
   color: #b45496;
 }
+
+.navbar-light .navbar-nav .nav-link:focus {
+  color: #b45496;
+}

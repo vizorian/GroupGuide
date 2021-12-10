@@ -3,15 +3,24 @@ import useAxios from "axios-hooks";
 import { Form, Button, Modal, Dropdown } from "react-bootstrap";
 import { useForm } from "react-hook-form";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
-export default function SessionUpdate({ token, gameId, campaignId, session }) {
+export default function SessionUpdate({
+  token,
+  gameId,
+  campaignId,
+  session,
+  manualGet,
+}) {
   const [show, setShow] = useState(false);
 
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
   const { register, handleSubmit } = useForm();
 
-  const [{ data, loading, error }, doPut] = useAxios(
+  const navigate = useNavigate();
+
+  const [{ data, loading, error, response }, doPut] = useAxios(
     {
       method: `PUT`,
       url: `http://localhost:5000/api/games/${gameId}/campaigns/${campaignId}/sessions/${session.id}`,
@@ -31,11 +40,14 @@ export default function SessionUpdate({ token, gameId, campaignId, session }) {
     });
 
     handleClose();
-    window.location.reload();
   };
 
   if (loading) {
     return <></>;
+  }
+
+  if (response) {
+    manualGet();
   }
 
   return (

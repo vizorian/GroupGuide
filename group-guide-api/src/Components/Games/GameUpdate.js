@@ -5,14 +5,14 @@ import { useForm } from "react-hook-form";
 import { useState } from "react";
 import jwt_decode from "jwt-decode";
 
-export default function GameUpdate({ token, game }) {
+export default function GameUpdate({ token, game, manualGet }) {
   const [show, setShow] = useState(false);
 
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
   const { register, handleSubmit } = useForm();
 
-  const [{ data, loading, error }, doPut] = useAxios(
+  const [{ data, loading, error, response }, doPut] = useAxios(
     {
       method: `PUT`,
       url: `http://localhost:5000/api/games/${game.id}`,
@@ -32,11 +32,14 @@ export default function GameUpdate({ token, game }) {
     });
 
     handleClose();
-    window.location.reload();
   };
 
   if (loading) {
     return <></>;
+  }
+
+  if (response) {
+    manualGet();
   }
 
   if (token != null) {
@@ -56,7 +59,7 @@ export default function GameUpdate({ token, game }) {
         Update
       </Dropdown.Item>
 
-      <Modal show={show} onHide={handleClose}>
+      <Modal show={show} onHide={handleClose} centered>
         <Modal.Header closeButton>
           <Modal.Title>Update game</Modal.Title>
         </Modal.Header>

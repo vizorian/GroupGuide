@@ -4,14 +4,19 @@ import { Form, Button, Modal, Dropdown } from "react-bootstrap";
 import { useForm } from "react-hook-form";
 import { useState } from "react";
 
-export default function SessionCreate({ token, gameId, campaignId }) {
+export default function SessionCreate({
+  token,
+  gameId,
+  campaignId,
+  manualGet,
+}) {
   const [show, setShow] = useState(false);
 
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
   const { register, handleSubmit } = useForm();
 
-  const [{ data, loading, error }, doPost] = useAxios(
+  const [{ data, loading, error, response }, doPost] = useAxios(
     {
       method: `POST`,
       url: `http://localhost:5000/api/games/${gameId}/campaigns/${campaignId}/sessions`,
@@ -31,11 +36,14 @@ export default function SessionCreate({ token, gameId, campaignId }) {
     });
 
     handleClose();
-    window.location.reload();
   };
 
   if (loading) {
     return <></>;
+  }
+
+  if (response) {
+    manualGet();
   }
 
   return (
@@ -44,9 +52,9 @@ export default function SessionCreate({ token, gameId, campaignId }) {
         Create session
       </Dropdown.Item>
 
-      <Modal show={show} onHide={handleClose}>
+      <Modal show={show} onHide={handleClose} centered>
         <Modal.Header closeButton>
-          <Modal.Title>Create</Modal.Title>
+          <Modal.Title>Create session</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form id="createForm" onSubmit={handleSubmit(onSubmit)}>

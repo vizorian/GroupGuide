@@ -3,14 +3,20 @@ import useAxios from "axios-hooks";
 import { Button, Modal, Dropdown } from "react-bootstrap";
 import { useState } from "react";
 
-export default function SessionDelete({ token, gameId, campaignId, session }) {
+export default function SessionDelete({
+  token,
+  gameId,
+  campaignId,
+  session,
+  manualGet,
+}) {
   const [show, setShow] = useState(false);
 
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
 
   // Delete game
-  const [{ error: deleteError }, doDelete] = useAxios(
+  const [{ error, response }, doDelete] = useAxios(
     {
       method: `DELETE`,
       url: `http://localhost:5000/api/games/${gameId}/campaigns/${campaignId}/sessions/${session.id}`,
@@ -21,11 +27,9 @@ export default function SessionDelete({ token, gameId, campaignId, session }) {
     { manual: true }
   );
 
-  const handleDelete = () => {
-    doDelete();
-    handleClose();
-    window.location.reload();
-  };
+  if (response) {
+    manualGet();
+  }
 
   return (
     <>
@@ -39,7 +43,7 @@ export default function SessionDelete({ token, gameId, campaignId, session }) {
         </Modal.Header>
         <Modal.Body>Do you wish to delete session {session.name}?</Modal.Body>
         <Modal.Footer>
-          <Button variant="danger" onClick={(handleClose, handleDelete)}>
+          <Button variant="danger" onClick={(handleClose, doDelete)}>
             Delete
           </Button>
         </Modal.Footer>

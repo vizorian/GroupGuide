@@ -1,6 +1,7 @@
 import React from "react";
 import useAxios from "axios-hooks";
 import { Dropdown, Row, Col, Button } from "react-bootstrap";
+import { Link } from "react-router-dom";
 
 // gets all campaigns for a specific game
 export default function CampaignGetAll({ token, gameId }) {
@@ -25,14 +26,11 @@ export default function CampaignGetAll({ token, gameId }) {
           <>
             <Row key={campaign.id}>
               <Col>
-                <Button
-                  variant="none"
-                  href={`${gameId}/campaigns/${campaign.id}`}
-                >
+                <Link className="a-custom" to={`campaigns/${campaign.id}`}>
                   <span className="button-text" style={{ fontSize: "35px" }}>
                     {campaign.name}
                   </span>
-                </Button>
+                </Link>
               </Col>
             </Row>
             <Row>

@@ -4,6 +4,7 @@ import { Form, Button, Modal } from "react-bootstrap";
 import { useForm } from "react-hook-form";
 import jwt_decode from "jwt-decode";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function CampaignCreate({ token, gameId }) {
   const [show, setShow] = useState(false);
@@ -12,7 +13,9 @@ export default function CampaignCreate({ token, gameId }) {
   const handleShow = () => setShow(true);
   const { register, handleSubmit } = useForm();
 
-  const [{ data, loading, error }, doPost] = useAxios(
+  const navigate = useNavigate();
+
+  const [{ data, loading, error, response }, doPost] = useAxios(
     {
       method: `POST`,
       url: `http://localhost:5000/api/games/${gameId}/campaigns`,
@@ -32,11 +35,14 @@ export default function CampaignCreate({ token, gameId }) {
     });
 
     handleClose();
-    window.location.reload();
   };
 
   if (loading) {
     return <></>;
+  }
+
+  if (response) {
+    navigate(`campaigns/${response.data.id}`);
   }
 
   if (token != null) {
@@ -57,7 +63,7 @@ export default function CampaignCreate({ token, gameId }) {
         Create campaign
       </h4>
 
-      <Modal show={show} onHide={handleClose}>
+      <Modal show={show} onHide={handleClose} centered>
         <Modal.Header closeButton>
           <Modal.Title>Create campaign</Modal.Title>
         </Modal.Header>

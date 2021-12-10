@@ -4,7 +4,7 @@ import { Button, Modal, Dropdown } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 
-export default function CampaignDelete({ token, gameId, campaign }) {
+export default function CampaignDelete({ token, gameId, campaign, manualGet }) {
   const [show, setShow] = useState(false);
 
   const handleClose = () => setShow(false);
@@ -13,7 +13,7 @@ export default function CampaignDelete({ token, gameId, campaign }) {
   const navigate = useNavigate();
 
   // Delete game
-  const [{ error: deleteError }, doDelete] = useAxios(
+  const [{ error, response }, doDelete] = useAxios(
     {
       method: `DELETE`,
       url: `http://localhost:5000/api/games/${gameId}/campaigns/${campaign.id}`,
@@ -24,10 +24,10 @@ export default function CampaignDelete({ token, gameId, campaign }) {
     { manual: true }
   );
 
-  const handleDelete = () => {
-    doDelete();
-    navigate(`/games/${gameId}/campaigns`);
-  };
+  if (response) {
+    manualGet();
+    navigate(-1);
+  }
 
   return (
     <>
@@ -41,7 +41,7 @@ export default function CampaignDelete({ token, gameId, campaign }) {
         </Modal.Header>
         <Modal.Body>Do you wish to delete campaign {campaign.name}?</Modal.Body>
         <Modal.Footer>
-          <Button variant="danger" onClick={(handleClose, handleDelete)}>
+          <Button variant="danger" onClick={(handleClose, doDelete)}>
             Delete
           </Button>
         </Modal.Footer>

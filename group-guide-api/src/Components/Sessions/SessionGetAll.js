@@ -21,7 +21,7 @@ function dynamicSort(property) {
 
 // gets all sessions for a specific campaign
 export default function SessionGetAll({ token, gameId, campaignId }) {
-  const [{ data, loading, error }] = useAxios(
+  const [{ data, loading, error }, manualGet] = useAxios(
     {
       url: `http://localhost:5000/api/games/${gameId}/campaigns/${campaignId}/sessions`,
       headers: {
@@ -38,11 +38,11 @@ export default function SessionGetAll({ token, gameId, campaignId }) {
   data.sort(dynamicSort("startingTime"));
 
   const today = new Date();
-  const upcomingSessions = data.filter(function (obj) {
+  const upcomingSessions = data.filter((obj) => {
     return new Date(obj.startingTime) > today;
   });
 
-  const expiredSessions = data.filter(function (obj) {
+  const expiredSessions = data.filter((obj) => {
     return new Date(obj.startingTime) < today;
   });
 
@@ -53,6 +53,7 @@ export default function SessionGetAll({ token, gameId, campaignId }) {
         expiredSessions={expiredSessions}
         gameId={gameId}
         campaignId={campaignId}
+        manualGet={manualGet}
       />
       <Dropdown.Divider />
       <h3 className="fw-bold">Upcoming sessions</h3>
@@ -86,12 +87,14 @@ export default function SessionGetAll({ token, gameId, campaignId }) {
                     gameId={gameId}
                     campaignId={campaignId}
                     session={session}
+                    manualGet={manualGet}
                   />
                   <SessionDelete
                     token={token}
                     gameId={gameId}
                     campaignId={campaignId}
                     session={session}
+                    manualGet={manualGet}
                   />
                 </DropdownButton>
               </Col>
